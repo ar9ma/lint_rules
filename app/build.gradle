@@ -1,0 +1,107 @@
+apply plugin: Plugins.androidApplication
+apply plugin: Plugins.kotlinAndroid
+apply plugin: Plugins.kotlinAndroidExtensions
+apply plugin: Plugins.kotlinKapt
+apply plugin: Plugins.safeArgsNavigation
+
+
+android {
+    compileSdkVersion Config.targetSdkVersion
+    defaultConfig {
+        applicationId Config.applicationId
+        minSdkVersion Config.minSdkVersion
+        targetSdkVersion Config.targetSdkVersion
+        versionCode Config.versionCode
+        versionName Config.versionName
+        testInstrumentationRunner InstrumentationTestLibraries.runnerClass
+        resConfigs Config.arabic, Config.english
+
+    }
+
+    buildTypes {
+        buildTypes.each {
+            it.buildConfigField "String", "API_KEY", API_KEY
+            it.resValue "string", "API_KEY", API_KEY
+        }
+        release {
+            shrinkResources = true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+        debug {
+            shrinkResources = true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            applicationIdSuffix Dev.applicationIdSuffix
+            // as long as no remote integration coupled with application id
+        }
+
+    }
+    flavorDimensions Dimensions.version
+    productFlavors {
+        production {
+            dimension Dimensions.version
+        }
+        development {
+            dimension Dimensions.version
+        }
+    }
+
+    sourceSets {
+        development { java.srcDirs = ["src/development/java"] }
+        production { java.srcDirs = ["src/production/java"] }
+        test {
+            resources.srcDirs += ['src/test/resources']
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = Versions.javaVersion
+        targetCompatibility = Versions.javaVersion
+    }
+    kotlinOptions {
+        jvmTarget = Versions.kotlinJvmTarget
+    }
+
+}
+
+dependencies {
+
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+
+    implementation project(Modules.core)
+    implementation project(Modules.corePresentation)
+    testImplementation UnitTestLibraries.mockWebserver
+    testImplementation UnitTestLibraries.jUnitx
+    testImplementation UnitTestLibraries.jUnit
+    testImplementation UnitTestLibraries.mockitoCore
+    testImplementation UnitTestLibraries.mockWebserver
+    androidTestImplementation InstrumentationTestLibraries.espressoCore
+    androidTestImplementation InstrumentationTestLibraries.espressoIdling
+    androidTestImplementation InstrumentationTestLibraries.espressoIntents
+    androidTestImplementation InstrumentationTestLibraries.espressoContrib
+    androidTestImplementation InstrumentationTestLibraries.mockitoAndroid
+    androidTestImplementation InstrumentationTestLibraries.rules
+    androidTestImplementation InstrumentationTestLibraries.runners
+    debugImplementation SharedTestLibraries.fragment_test
+    debugImplementation SharedTestLibraries.testingX
+    debugImplementation CoreLibraries.leakCanary
+    implementation CoreLibraries.material_design
+    implementation CoreLibraries.lifecycle
+    implementation CoreLibraries.fragmentKtx
+    implementation NavigationLibraries.navigation_fragment
+    implementation NavigationLibraries.navigation_fragmentKtx
+    implementation NavigationLibraries.navigation_UI
+    implementation NavigationLibraries.navigation_UiKtx
+
+    implementation UiLibraries.circularImage
+    implementation DomainLibraries.picasso
+
+    implementation DomainLibraries.paging
+
+    kapt DomainLibraries.daggerAnnotation
+    kapt DomainLibraries.daggerProcessor
+    kaptAndroidTest DomainLibraries.daggerAnnotation
+    kaptTest DomainLibraries.daggerAnnotation
+
+}
